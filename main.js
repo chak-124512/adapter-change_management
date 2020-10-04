@@ -141,7 +141,7 @@ healthcheck(callback) {
       * responseData parameter.
       */
       this.emitStatus('ONLINE');
-      log.debug('ServiceNow: Instance ${this.id} is available.');
+      log.info('ServiceNow: Instance ${this.id} is available.');
       if (callback) {
           callback(result, null);
       }
