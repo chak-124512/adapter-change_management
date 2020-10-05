@@ -84,6 +84,16 @@ class ServiceNowAdapter extends EventEmitter {
   }
 
   /**
+   * @memberof ServiceNowAdapter
+   * @method healthcheck
+   * @summary Check ServiceNow Health
+   * @description Verifies external system is available and healthy.
+   *   Calls method emitOnline if external system is available.
+   *
+   * @param {ServiceNowAdapter~requestCallback} [callback] - The optional callback
+   *   that handles the response.
+   */
+  /**
  * @memberof ServiceNowAdapter
  * @method healthcheck
  * @summary Check ServiceNow Health
@@ -93,7 +103,8 @@ class ServiceNowAdapter extends EventEmitter {
  * @param {ServiceNowAdapter~requestCallback} [callback] - The optional callback
  *   that handles the response.
  */
-handleResults(result, error, callback){
+healthcheck(callback) {
+ this.getRecord((result, error) => {
    /**
     * For this lab, complete the if else conditional
     * statements that check if an error exists
@@ -113,23 +124,12 @@ handleResults(result, error, callback){
       * healthcheck(), execute it passing the error seen as an argument
       * for the callback's errorMessage parameter.
       */
-      this.emit('OFFLINE', { id:this.id });
-      log.error(`${this.id} ServiceNow: Instance is unavailable. ${error}`);
-      if(callback)callback(null, error); 
+      this.emitStatus('OFFLINE');
+      log.error('ServiceNow: Instance ${this.id} is unavailable.');
+      if (callback) {
+          callback(null, error);
+      }
    } else {
-      //  let data;
-      //  try{
-      //  data = JSON.parse(result.body);
-      //  data = data.result.map(r=>{
-      //      const newData = {change_ticket_number:r.number, active:r.active, priority:r.priority, 
-      //      description:r.description, work_start:r.work_start, work_end:r.work_end, change_ticket_key:r.sys_id
-      //      }
-      //      return newData;
-      //  })
-      //  }catch(e){
-      //   log.error(`${this.id} ServiceNow: ${e}`);
-      //   if(callback)callback(null, error); 
-      //  }
      /**
       * Write this block.
       * If no runtime problems were detected, emit ONLINE.
@@ -140,13 +140,13 @@ handleResults(result, error, callback){
       * parameter as an argument for the callback function's
       * responseData parameter.
       */
-      this.emit('ONLINE', { id:this.id });
-      log.debug(`${this.id} ServiceNow: Instance is available.`);
-      if(callback)callback(result, null); 
+      this.emitStatus('ONLINE');
+      log.info('ServiceNow: Instance ${this.id} is available.');
+      if (callback) {
+          callback(result, null);
+      }
    }
- }; 
-healthcheck(callback) {
- this.getRecord(callback);
+ });
 }
 
   /**
@@ -195,10 +195,6 @@ healthcheck(callback) {
    * @param {ServiceNowAdapter~requestCallback} callback - The callback that
    *   handles the response.
    */
-//   cb(data, error, type){
-//     if (error) { console.error(`\nError returned from ${type} request:\n${JSON.stringify(error)}`); }
-//     console.log(`\nResponse returned from ${type} request:\n${JSON.stringify(data)}`)
-//   }
   getRecord(callback) {
     /**
      * Write the body for this function.
@@ -206,8 +202,7 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-    //  const cbg = (data, error)=> cb(data, error, 'GET');
-     this.connector.get((data, error) => this.handleResults(data, error, callback));
+     this.connector.get((results, error) => callback(results, error));
   }
 
   /**
@@ -226,7 +221,8 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     this.connector.post((data, error) => this.handleResults(data, error, callback))
+    this.connector.post((results, error) => callback(results, error));
+
   }
 }
 
