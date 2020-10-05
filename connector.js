@@ -119,6 +119,41 @@ processRequestResults(error, response, body, callback) {
       callbackError = 'Service Now instance is hibernating';
       console.error(callbackError);
     } else {
+      if (response.statusCode === 200) {
+          try {
+            let result = data.parsedJSON(response.body).result;
+            callBackData = {
+                change_ticket_number : result.number,
+                active : result.active,
+                priority : result.priority,
+                description : result.description,
+                work_start : result.work_start,
+                work_end : result.work_end,
+                change_ticket_key : result.sys_id
+                
+            };
+            
+          } catch (e) {
+              callbackError = e;
+          }
+      } else if (response.statusCode === 201) {
+          try {
+            let result = data.parsedJSON(response.body).result;
+            callBackData = {
+                change_ticket_number : result.number,
+                active : result.active,
+                priority : result.priority,
+                description : result.description,
+                work_start : result.work_start,
+                work_end : result.work_end,
+                change_ticket_key : result.sys_id
+                
+            };
+            
+          } catch (e) {
+              callbackError = e;
+          }
+      }
       callbackData = response;
     }
     return callback(callbackData, callbackError);
